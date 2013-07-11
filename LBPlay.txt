@@ -1,0 +1,359 @@
+ LBPlay v.0.07. Text mode and PM universal player/front end with soft karaoke
+
+
+This is free software. It is distributed under GNU General Public License.
+See file COPYING for details. There is NO WARRANTY. Use it at your own risk.
+
+
+			INTRO
+
+I've got a SC88 and I've found that there's no good program to play MIDI. The
+best of existing software was TMIDI though it loses events in very intensive
+parts of MIDI file. So I wrote this simple MIDI player.
+
+
+			FEATURES
+
+- Sending reset sysex before playing
+- Support for multiple MIDI ports
+- Fast forward and rewind
+- Soft karaoke (synchronous lyrics display)
+- Playlists
+- Can work as a front end for an external player
+
+
+			REQUIREMENTS
+
+OS/2 Warp 4 or 4.5 (don't know about Warp 3). My MIDI libraries (they come
+in a separate archive LBMIDI*.zip). Some additional requirements are specifical
+for different player modules, see the text file in the archive with libraries.
+
+
+			USAGE
+
+Command line:
+
+LBPlayVIO <File|Option file> [File|Option file] ... [switch] [switch] ...
+LBPlayPM  <File|Option file> [File|Option file] ... [switch] [switch] ...
+<File|Option file> is either MIDI file name or -@ followed by file name
+that contain MIDI file names and/or options, one per line.
+
+The player tries to find an option file with the path and name of executable
+and .cfg extension (that is LBPlayVIO.cfg or LBPlayPM.cfg) and processes it
+if it is found. So you can place common switches (e.g. player module
+configuration) in this file.
+
+Karaoke switches:
+
+-k1 display karaoke text only from type 1 (text) metaevents.
+-k5 display karaoke text only from type 5 (lyric) metaevents.
+-k  turn karaoke mode on initially.
+-cp <CodePage> set karaoke text codepage. Ignored by VIO version.
+
+Synth reset switches:
+
+-gm send GM reset before playing.
+-gs send GS reset before playing.
+-xg send XG reset before playing.
+-nr disable sending reset before playing. (on default Reset All Controllers and
+    All Notes Off controllers are sent to each channel).
+-cr <SysEx> send custom reset SysEx.
+-cc <SysEx> send custom reset SysEx with Roland checksum.
+Sysex is a list of up to 14 comma separated hexadecimal values without leading
+F0 sysex status and F7 sysex end status. E.g. a GS reset can be done this way:
+-cr 41,10,42,12,40,00,7F,00,41
+or
+-cc 41,10,42,12,40,00,7F,00
+
+
+Playlist order switches:
+-c  cycle the playlist
+-s  shuffle the playlist
+
+Player modlue switches:
+-p <parameter> pass a parameter to the player module.
+
+
+Note:
+
+-k1/-k5 and -gm/-gs/-xg/-nr/-cc/-cr  switches are mutually exclusive, if several
+switches are specified only the last one has meaning.
+
+-gm, -gs, -xg, -nr, -cc, -cr switches have no effect if external player is used.
+
+Keyboard control:
+
+[Esc]   - Stop playing and exit.
+[Space] - Pause.
+[<-]    - Scan back.
+[->]    - Scan forward.
+[Up]    - Skip to beginning/Skip to previous file.
+[Down]  - Skip to next file.
+[K]     - Toggle karaoke on/off.
+
+
+			PLAYLISTS
+
+Since the option files may contain MIDI file names they can be used as
+playlists. You should specify MIDI files to be played in a file one per line
+and, probably, additional options (like -c or -s) and place -@ followed by
+the file name in the command line.
+
+
+ 		  COMMAND LINE/OPTION FILE SAMPLES
+
+	I was told that it's hard to figure out how to pass parameters to
+player DLLs from LBPlay. To pass a parameter to a player DLL you should use
+-p parameter or -p "parameter" in the command line of LBPlay. Here are some
+examples:
+
+			RTMIDI (LBRTMIDI.DLL)
+
+Usually you do not need any parameters for this module. In this case it assigns
+all available RTMIDI hardware devices to MIDI port1, port 2, etc. in the order
+of registration. However sometimes you may want to change the order or exclude
+some devices. In this case you must pass RTMIDI device names as player module
+parameters, then player will use only specified devices and assugn them in the
+order they are listed. For example imagine we have such RTMIDI devices:
+MPU-401 (I/O=0330, IRQ=09)
+MPU-401 (I/O=0340, IRQ=11)
+MPU-401 (I/O=0360, IRQ=10)
+and you want to use the last one as port 1, the second one as port 2 and not
+to use the first one at all. In this case the command line for LBPlay may be
+like this:
+
+LBPlayPM -p "MPU-401 (I/O=0360, IRQ=10)" -p "MPU-401 (I/O=0340, IRQ=11)" a.mid
+
+Please note that you should quote parameters if they contain spaces.
+
+If you want to use an option file you should create such LBPlayPM.cfg:
+
+-p MPU-401 (I/O=0360, IRQ=10)
+-p MPU-401 (I/O=0340, IRQ=11)
+
+and play file by this command line:
+
+LBPlayPM a.mid
+
+			Direct MPU-401 (LBMPU.DLL)
+
+You have to specify base ports (in hex) of MPU-401 devices to be used for
+playback. The devices are assigned to the ports in the order they are listed.
+Please be careful specifying base ports because wrong values can cause a system
+crash. An additional output delay (decimal) can be specified if you experience
+event losses. Let's consider the example shown in RTMIDI module section but for
+direct MPU-401 module. The command line must be like this:
+
+LBPlayPM -p 360 -p 340 a.mid
+
+or LBPlayPM.cfg:
+
+-p 360
+-p 340
+
+In case of event losses on the device with port 340 your command line should
+look like this:
+
+LBPlayPM -p 360 -p 340:300 a.mid
+
+or LBPlayPM.cfg:
+
+-p 360
+-p 340:300
+
+300 is a real value needed by my MPU-401 board with Celeron CPU at 416MHz
+(83 MHz bus) and BX motherboard. My CS4237B based card needs no delay. If
+you experience event losses (wrong instruments, sustained or lost notes,
+especially after skipping forward/backward or pause) you should try specifying 
+the delay starting with small numbers and increasing them until the playback
+is correct. Too high delay may cause incorrect playback as well.
+
+
+			STANDARD DEVICE (LBSer.DLL)
+
+You have to specify devices to be used for playback. The devices are assigned
+to the ports in the order they are listed. Also you can specify baud rate if
+the device is serial port. The baud rate must be separated from the device name
+with a colon. Imagine we have two synths connected to COM1 at 38400 bps and
+to COM4 at 115200 bps and you want the synth connected to COM4 to be the first
+port. The command line must be like this:
+
+LBPlayPM -p COM4:115200 -p COM1:34800 a.mid
+
+or LBPlayPM.cfg:
+
+-p COM4:115200
+-p COM1:34800
+
+
+			MMOS/2 (LBMMOS.DLL)
+
+Usually you don't need to specify any parameters for this module. In this case
+the playback will go via the standard sequencer device. However you can specify
+another MMOS/2 device as a parameter. For example if you want to play via
+sequencer02 device you should use the following command line:
+
+LBPlayPM -p sequencer02 a.mid
+
+or LBPlayPM.cfg:
+
+-p sequencer02
+
+
+			EXTERNAL PLAYER (LBEXT.DLL)
+
+
+You have to specify the name and path for the external player to be used.
+Additionaly you may specify parameters to be passed to the external player
+AFTER the player name is specified. Also you can specify several parameters
+affecting the way the external player is started BEFORE the player name:
+-h - Start external player hidden, -d - Start external player full-sized,
+do not close on exit (useful for troubleshooting), -a <time adjustment in ms>
+- Set time adjustment (the time to wait after the player is started before
+starting to count the time). For example if you use TiMidity the following way:
+
+D:\TiMidity\TiMidity.exe -c D:\TiMidity\TiMidity.cfg -E a.mid 
+
+and want to use it as an external player, start it hidden and it's startup
+takes approximately 3 seconds (3000ms) you should use the following command
+line for LBPlay:
+
+LBPlayPM -p -h -p -a -p 3000 -p D:\TiMidity\TiMidity.exe -p -c -p D:\TiMidity\TiMidity.cfg -p -E a.mid
+
+or LBPlayPM.cfg:
+
+-p -h
+-p -a
+-p 3000
+-p D:\TiMidity\TiMidity.exe
+-p -c
+-p D:\TiMidity\TiMidity.cfg
+-p -E
+
+
+			MPUINIT UTILITY
+
+This utility is a workaround for problems with MPU-401 and compatibles. It
+re-initializes MPU-401s at specified ports. Usage:
+
+MPUINIT <Port> [Port] ...
+
+Where <Port> is a hex base port address (usually 330 or 300).
+
+PLEASE BE CAREFUL! BY INCORRECT USAGE OF THIS UTILITY YOU MAY HALT YOUR SYSTEM!
+
+
+			MAKING RTMIDI WORK ON SB.
+
+To set up RTMIDI support on SB MIDI port download the lastest MPU-401 driver,
+unpack MPU401.SYS (18712 bytes long) into your MMOS2 directory, then use
+a hex editor to replace bytes 75 with EB at locations 3DFF and 42E2 (at least
+in Russia it is absolutely legal as soon as you're a legal user of the
+driver :). Now the driver ignores resource claiming errors. Then install
+the driver in CONFIG.SYS (see driver's readme for details) _AFTER_ your sound
+card driver, explicitly specifying the base port(s). Reboot and if you're
+lucky you'd get RTMIDI up and running. Sometimes this MIDI support may cease
+to work, use MPUInit utility to re-initialize MIDI interface.
+
+
+			KNOWN PROBLEMS AND LIMITATIONS
+
+(Both) In case file has a lot of sysex'es leaving paused state may take
+       up to a couple of seconds.
+
+(Both) Format 2 MIDI files, SMPTE timing and RIFF MIDI files are not supported
+       now. (Is it nessesary?)
+
+(Both) Starting several players simultaneously will result in simultaneous
+       playback. What else do you expect ?:)
+
+(VIO)  In case file has sysexes for several kinds of synths only the first
+       synth type is reported.
+
+(Both) Sometimes error 7202 occurs when initializing RTMIDI or no events are
+       really sent though the player indicates that it's playing. This is due
+       to MPU401 RTMIDI driver bugs: MPU401 must be initialized but it is not
+       in the first case and MPU401 output is blocked by pending input in the
+       second case. Use MPUInit utility to re-initialize MIDI interface.
+
+(PM)   Karaoke highlight is displayed only when the karaoke window is active
+       (PM feature).
+
+(Both) No checks are made for recursive option files.
+
+
+			FUTURE PLANS
+
+- Application-painted karaoke window instead of MLE.
+- Netscape plug-in.
+
+
+			CONTACT
+
+You can send your bug reports and suggestions to e-mail
+boga@inbox.ru or FIDO 2:5095/9. The lastest version of the
+player can be downloaded from http://freebyte.ml.org/~boga/OS2Programs.html
+where you can also find a couple of other useful OS/2 programs.
+
+
+			HISTORY
+
+0.01    - Initial text mode version.
+0.02    - Added PM version.
+0.03    - (Both) Fixed a timing problem when tempo change.
+        - (Both) Enabled processing of partially corrupt files.
+        - (Both) Added support for sysex continuation messages.
+        - (Both) Reset sysexes now work when the file contains sysexes.
+        - (Both) Removed 71-minute limit. Well, the limit remains but it is
+                 71583 minutes now (approx. 50 days).
+        - (VIO)  -d switch is removed. Dump function is moved to a separate
+                 utility.
+0.04	- (VIO)  Fixed traps in kbdcalls interface.
+	- (PM)   Error messages are now shown.
+	- (PM)   Karaoke window is now cleared when starting another song.
+	- (PM)   Positioning by the slider now works correctly.
+	- (PM)   A pause is made after scanning to wait for another command.
+	- (PM)   Controls are now disabled when they can't be used.
+	- (VIO)  "Grey" arrows now work.
+	- (VIO)  A lot of Manufacturer IDs added (as much as I've found).
+	- (PM)   the same keyboard controls as in VIO version can be used
+	- (PM)   Fixed overlapping buttons.
+	- (PM)   A proper icon is displayed, the windows are listed in task
+                 list.
+	- (PM)   Karaoke window is now resizeable.
+	- (Both) Fixed exiting when skipping to previous to the first file
+	         or next to the last one.
+	- (Both) CD-player style skipping back (first press re-starts current
+                 file, immediate another press skips to previous files).
+	- (Both) Added pause.
+	- (PM)   Changed text on push buttons into icons.
+	- (Both) Files with running status over metaevent are parsed now
+                 correctly.
+	- (Both) Number of supported ports increased to 256.
+	- (VIO)	 A real number of ports is displayed.
+	-        Added MPU-401 initialization utility.
+	-        Removed LBMDump utility.
+0.05	- (Both) Added ability to use the player as a front end for any other
+	         MIDI player.
+	- (PM)   Current position time is updated while the slider is being
+	         tracked.
+	- (PM)   Improved interface. Scan back/forward buttons now repeat
+	         automatically.
+	- (Both) Improved event rescan algorythm.
+	- (Both) Karaoke now can be toggled while playing. Changed meaning
+	         of -k, -k1 and -k5 switches.
+	- (PM)   Window positions are now stored and restored.
+	- (PM)   Added MIDI File info window.
+	- (Both) Karaoke is now updated while scanning back.
+0.06	- (Both) Recompiled with EMX 0.9d
+	- (PM)   Fixed: no current position update if forward/rewind was
+		 pressed and there was no events between the original and
+		 new positions.
+	- (Both) New modular structure with replaceable player modules.
+	- (Both) It is possible to explicitly specify RTMIDI devices to
+	         be used.
+0.07	- (Both) Fixed: karaoke toggling was sometimes enabled when no karaoke
+                 events were present.
+	- (Both) Added support for custom resets.
+	- (Both) Changed playlists to option files.
+	- (PM)   Karaoke codepage support.

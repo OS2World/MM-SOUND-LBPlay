@@ -1,0 +1,66 @@
+/*********** CLIPBRD C Sample Program Resource Script File (.RC) ***********
+ *
+ ******************************************************************************/
+
+
+#define INCL_PM
+#include <os2.h>
+#include "LBPlayRes.h"
+
+ICON ID_RESOURCE LBPlayPM.ico
+ICON ID_KARAOKE LBPlayPM.ico
+ICON ID_INFO LBPlayPM.ico
+
+BITMAP IDB_NORMAL	"BMP\Normal.BMP"
+BITMAP IDB_HILITED	"BMP\Hilited.BMP"
+BITMAP IDB_DISABLED	"BMP\Disabled.BMP"
+BITMAP IDB_PAUSE	"BMP\Pause.BMP"
+BITMAP IDB_SCANB	"BMP\Scanb.BMP"
+BITMAP IDB_SCANF	"BMP\Scanf.BMP"
+BITMAP IDB_SKIPB	"BMP\Skipb.BMP"
+BITMAP IDB_SKIPF	"BMP\Skipf.BMP"
+BITMAP IDB_UNPAUSE	"BMP\Unpause.BMP"
+BITMAP IDB_EXIT		"BMP\Exit.BMP"
+BITMAP IDB_KARAON	"BMP\KaraOn.BMP"
+BITMAP IDB_KARAOFF	"BMP\KaraOff.BMP"
+BITMAP IDB_INFOON	"BMP\InfoOn.BMP"
+BITMAP IDB_INFOOFF	"BMP\InfoOff.BMP"
+
+STRINGTABLE
+{
+    IDS_TITLE,                  "LB Play v.0.07"
+    IDS_SWTITLE,                "LB Play - MIDI player"
+    IDS_LOAD,			" - Loading ..."
+    IDS_CLEANUP,		" - Cleaning up ..."
+    IDS_KARAOKE,                "LB Play - Karaoke"
+    IDS_INFO,                   "LB Play - Info"
+}
+
+MESSAGETABLE
+{
+ IDMSG_INITFAILED          	"Initialization failed."
+ IDMSG_LOADFAILED          	"Failed to load file."
+ IDMSG_MAINWINCREATEFAILED 	"Failed to create main window."
+ IDMSG_SYNTAXERROR         	"Error in command line."
+ IDMSG_RTMIDIFAILED		"Player initialization failed."
+}
+
+ACCELTABLE ID_ACCEL
+{
+    VK_SPACE, ID_MA_PAUSE,     VIRTUALKEY
+    VK_LEFT, ID_MA_REWND,     VIRTUALKEY
+    VK_RIGHT, ID_MA_FFWD,     VIRTUALKEY
+    VK_UP,	ID_MA_PREV,     VIRTUALKEY
+    VK_DOWN,	ID_MA_NEXT,     VIRTUALKEY
+    "x",	ID_MA_QUIT,	ALT
+    "X",	ID_MA_QUIT,	ALT
+    VK_ESC,	ID_MA_QUIT,     VIRTUALKEY
+    "k",	ID_MA_KARA
+    "K",	ID_MA_KARA
+    "i",	ID_MA_INFO
+    "I",	ID_MA_INFO
+}
+
+rcinclude Main.dlg
+//rcinclude Karaoke.dlg
+

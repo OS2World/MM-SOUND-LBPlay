@@ -1,0 +1,22 @@
+NAME    LBPlayVIO   WINDOWCOMPAT
+
+DESCRIPTION 'LB MIDI VIO Player'
+
+CODE    MOVEABLE
+DATA    MOVEABLE MULTIPLE
+
+IMPORTS     MIDIParse=LBMIDI.MIDIParse
+            MIDITime=LBMIDI.MIDITime
+            MIDIDrop=LBMIDI.MIDIDrop
+            MIDIRtoM=LBMIDI.MIDIRtoM
+            MIDISort=LBMIDI.MIDISort
+            MIDIRescan=LBMIDI.MIDIRescan
+            MIDIIndex=LBMIDI.MIDIIndex
+            MIDIPrevR=LBMIDI.MIDIPrevR
+            PlayInit=LBPLAY.PlayInit
+            PlayCleanup=LBPLAY.PlayCleanup
+	    PlayStop=LBPLAY.PlayStop
+            PlayStart=LBPLAY.PlayStart
+            PlayIsPlaying=LBPLAY.PlayIsPlaying
+            PlayEvent=LBPLAY.PlayEvent
+            PlayPos=LBPLAY.PlayPos

@@ -1,0 +1,4 @@
+LBPlay v.0.07
+A simple multiport text mode and PM MIDI player/front end with karaoke and
+playlists.
+Requires my MIDI libraries (LBMIDI).

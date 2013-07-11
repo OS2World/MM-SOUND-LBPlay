@@ -1,0 +1,38 @@
+CC=gcc -c -Zomf -Zsys -Id:/emx/include -Id:/os2_apps/warptoolkit/h -xc -funsigned-char -O3 -Wreturn-type -Wunused -Wuninitialized -Wparentheses
+LINK=emxomfld -s
+LIBDIR= -LD:\emx\lib -LD:\emx\lib\st
+LIBS=  -lc_alias -lgcc -lc -lc_app -lsys -los2 -lend
+BMPS= BMP\Exit.BMP BMP\Pause.BMP BMP\scanb.BMP BMP\scanf.BMP BMP\skipb.BMP \
+      BMP\skipf.BMP BMP\Unpause.BMP BMP\Disabled.bmp BMP\Normal.bmp \
+      BMP\Hilited.bmp BMP\KaraOn.BMP BMP\KaraOff.BMP BMP\InfoOn.BMP \
+      BMP\InfoOff.BMP
+
+all     :  LBPlayPM.exe LBPlayVIO.exe MPUInit.exe 
+
+MPUInit.exe: MPUInit.c MPUInit.def
+	$(CC) MPUInit.c
+	$(LINK) -o MPUInit.exe $(LIBDIR) $(LIBS) d:\emx\lib\crt0.obj mpuinit.obj mpuinit.def 
+
+LBPlayVIO.EXE : lbplayVIO.obj lbplay.obj LBPlayVIO.def
+	$(LINK)  -o LBPlayVIO.EXE $(LIBDIR) $(LIBS) d:\emx\lib\crt0.obj lbplayVIO.obj lbplay.obj LBPlayVIO.def
+
+LBPlayPM.EXE: lbplayPM.obj lbplay.obj LBPlayPM.def LBPlayPM.res
+	$(LINK) -o LBPlayPM.EXE $(LIBDIR) $(LIBS) d:\emx\lib\crt0.obj lbplayPM.obj lbplay.obj LBPlayPM.def
+	rc LBPlayPM.res
+
+clean:
+	del *.obj
+	del LBPlayPM.exe
+	del LBPlayVIO.exe
+	del MPUInit.exe
+	del LBPlayPM.res
+
+LBPlay.obj :    lbplay.c lbplay.h ..\midiplay.h ..\midilib.h
+	$(CC) lbplay.c
+lbplayVIO.obj :   lbplayVIO.c lbplay.h ..\midiplay.h ..\midilib.h
+	$(CC) lbplayVIO.c
+lbplayPM.obj :   lbplayPM.c lbplay.h ..\midiplay.h ..\midilib.h LBPlayPM.h LBPlayRes.h
+	$(CC) lbplayPM.c 
+LBPlayPM.res :   LBPlayPM.rc Main.dlg LBPlayRes.h $(BMPS) LBPlayPM.ico
+	rc -r LBPlayPM.rc
+

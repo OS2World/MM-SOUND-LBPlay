@@ -1,0 +1,35 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "F:\midi\LBPlay\LBPlayRes.h"
+
+DLGTEMPLATE IDD_MAIN LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "LBPlay - Initializing ...", IDD_MAIN, 39, 54, 136, 66, 
+            WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR | FCF_MINBUTTON
+    BEGIN
+        CONTROL         "", ID_MA_LIST, 5, 12, 126, 45, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_GROUP | WS_TABSTOP | 
+                        WS_VISIBLE | WS_DISABLED
+        PUSHBUTTON      "#3", ID_MA_REWND, 21, 4, 15, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        PUSHBUTTON      "#5", ID_MA_PREV, 52, 4, 15, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        PUSHBUTTON      "#6", ID_MA_NEXT, 67, 4, 16, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        RTEXT           "00:00", ID_MA_TOTTIME, 108, 30, 23, 8
+        LTEXT           "00:00", ID_MA_CURTIME, 5, 30, 23, 8
+        PUSHBUTTON      "#4", ID_MA_FFWD, 36, 4, 16, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        PUSHBUTTON      "#2", ID_MA_PAUSE, 5, 4, 16, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        PUSHBUTTON      "#1", ID_MA_QUIT, 115, 4, 16, 20, BS_USERBUTTON
+        PUSHBUTTON      "#1", ID_MA_KARA, 83, 4, 16, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        PUSHBUTTON      "#1", ID_MA_INFO, 99, 4, 16, 20, BS_USERBUTTON | 
+                        WS_DISABLED
+        SLIDER          ID_MA_SLIDER, 32, 26, 72, 16, SLS_SNAPTOINCREMENT | 
+                        WS_GROUP
+                        CTLDATA 12, 0, 128, 0, 0, 0
+    END
+END
